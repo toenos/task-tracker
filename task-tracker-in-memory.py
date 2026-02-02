@@ -1,7 +1,8 @@
 """
 assignment: https://roadmap.sh/projects/task-tracker
-This script is created using the other script as logic (task-tracker-in-memory.py) and adds json output, os module and doing argparse things.
-I separated the files to firstly learn the base logic and then using modules to simplify the work (and learn about the import libraries in a later phase)
+This script is built as starting out with the assignment before learning about the imports for cli-parsing (e.g. argparse or other modules)
+I't mainly focusses on using functions, returning data, using while loop to keep the program running and per-action logic.
+After this script i will read into the argparse and other modules that can solve the cli-tracker and save that as task-cli.py
 """
 
 from datetime import datetime
@@ -20,6 +21,7 @@ def save_tasks(task_list):
     with open(FILENAME, "w") as f:
         json.dump(task_list, f, indent=2)
 
+# This program is going to need datetime for multiple times (add, update) => DRY principle to not repeat yourself so thats why i created this function)
 def get_current_time():
     return datetime.now().isoformat()
 
@@ -70,7 +72,7 @@ def main():
 
         if user_input == "add":
             task, task_list = add_task(task_list)
-            print("Task added.")
+            print(f"Task '{task['description']}' added.")
         elif user_input == "list":
             status_type = input("Type status to filter (todo/done/in-progress) or press enter for all: \n").strip()
             if status_type == "":
