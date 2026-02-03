@@ -1,12 +1,14 @@
 """
 assignment: https://roadmap.sh/projects/task-tracker
-This script is created using the other script as logic (task-tracker-in-memory.py) and adds json output, os module and doing argparse things.
-I separated the files to firstly learn the base logic and then using modules to simplify the work (and learn about the import libraries in a later phase)
+task-cli using argparse
+when using argparse, no "while" or "input()" is needed, so this has to change in comparison to the other script.
+also when saving the data it has to do this after every cli-task, not when the "while loop" in previous code is exited.
 """
 
 from datetime import datetime
 import json
 import os
+import argparse
 
 FILENAME = "tasks.json"
 
@@ -23,8 +25,7 @@ def save_tasks(task_list):
 def get_current_time():
     return datetime.now().isoformat()
 
-def add_task(task_list):
-    description = input("what task would you like to add? \n")
+def add_task(task_list, description): # description is now an argument given into the function isntead of "input()"
     id = len(task_list) + 1
     task = {
         "id": id,
@@ -36,54 +37,108 @@ def add_task(task_list):
     task_list.append(task)
     return task, task_list
 
-def list_tasks(task_list, status=None):
+def list_tasks(task_list, status=None): # unchanged
     for task in task_list:
         if status is None or task["status"] == status:
             print(f"[{task['id']}] ({task['status']}) {task['description']}")
 
-def update_task(task_list):
-    task_id = int(input("Enter task id to update: "))
-    new_status = input("Enter new status (todo/in-progress/done): ")
-
+def update_task(task_list, task_id, new_description):
     for task in task_list:
         if task["id"] == task_id:
-            task["status"] = new_status
+            task["description"] = new_description
             task["updatedAt"] = get_current_time()
-            print("Task updated.")
-            return
-    print("Task not found.")
+            return True
+    return False
 
-def delete_task(task_list):
-    task_id = int(input("Enter task id to delete: "))
+def set_status(task_list, task_id, status):
+    for task in task_list:
+        if task["id"] == task_id:
+            task["status"] = status
+            task["updatedAt"] = get_current_time()
+            return True
+    return False
+
+
+def delete_task(task_list, task_id):
     for task in task_list:
         if task["id"] == task_id:
             task_list.remove(task)
-            return
-    print("Task not found.")
+            return True
+    return False
 
 def main():
-    task_list = []
+    parser = argparse.ArgumentParser(description="Task CLI")
 
-    while True:
-        print("What would you like to do? type 'add', 'list', 'update', 'delete' or 'exit'")
-        user_input = input("").strip().lower()
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-        if user_input == "add":
-            task, task_list = add_task(task_list)
-            print("Task added.")
-        elif user_input == "list":
-            status_type = input("Type status to filter (todo/done/in-progress) or press enter for all: \n").strip()
-            if status_type == "":
-                list_tasks(task_list)
-            else:
-                list_tasks(task_list, status_type)
-        elif user_input == "update":
-            update_task(task_list)
-        elif user_input == "delete":
-            delete_task(task_list)
-        elif user_input == "exit":
-            break
+    # add
+    add_p = subparsers.add_parser("add", help="Add a new task")
+    add_p.add_argument("description")
+
+    # update
+    update_p = subparsers.add_parser("update", help="Update task description")
+    update_p.add_argument("id", type=int)
+    update_p.add_argument("description")
+
+    # delete
+    delete_p = subparsers.add_parser("delete", help="Delete a task")
+    delete_p.add_argument("id", type=int)
+
+    # mark-in-progress
+    mip_p = subparsers.add_parser("mark-in-progress", help="Mark task as in progress")
+    mip_p.add_argument("id", type=int)
+
+    # mark-done
+    done_p = subparsers.add_parser("mark-done", help="Mark task as done")
+    done_p.add_argument("id", type=int)
+
+    # list
+    list_p = subparsers.add_parser("list", help="List tasks")
+    list_p.add_argument(
+        "status",
+        nargs="?",
+        choices=["todo", "in-progress", "done"],
+        help="Optional status filter"
+    )
+
+    args = parser.parse_args()
+    task_list = load_tasks()
+
+    if args.command == "add":
+        task, task_list = add_task(task_list, args.description)
+        save_tasks(task_list)
+        print(f"Task added successfully (ID: {task['id']})")
+
+    elif args.command == "update":
+        if update_task(task_list, args.id, args.description):
+            save_tasks(task_list)
+            print("Task updated successfully")
         else:
-            print("Unknown command.")
+            print("Task not found")
 
-main()
+    elif args.command == "delete":
+        if delete_task(task_list, args.id):
+            save_tasks(task_list)
+            print("Task deleted successfully")
+        else:
+            print("Task not found")
+
+    elif args.command == "mark-in-progress":
+        if set_status(task_list, args.id, "in-progress"):
+            save_tasks(task_list)
+            print("Task marked as in-progress")
+        else:
+            print("Task not found")
+
+    elif args.command == "mark-done":
+        if set_status(task_list, args.id, "done"):
+            save_tasks(task_list)
+            print("Task marked as done")
+        else:
+            print("Task not found")
+
+    elif args.command == "list":
+        list_tasks(task_list, args.status)
+
+if __name__ == "__main__":
+    main()

@@ -21,7 +21,6 @@ def save_tasks(task_list):
     with open(FILENAME, "w") as f:
         json.dump(task_list, f, indent=2)
 
-# This program is going to need datetime for multiple times (add, update) => DRY principle to not repeat yourself so thats why i created this function)
 def get_current_time():
     return datetime.now().isoformat()
 
@@ -64,7 +63,7 @@ def delete_task(task_list):
     print("Task not found.")
 
 def main():
-    task_list = []
+    task_list = load_tasks()
 
     while True:
         print("What would you like to do? type 'add', 'list', 'update', 'delete' or 'exit'")
@@ -87,5 +86,5 @@ def main():
             break
         else:
             print("Unknown command.")
-
+    save_tasks(task_list)
 main()

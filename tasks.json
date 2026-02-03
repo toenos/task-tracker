@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "description": "buy a house",
+    "status": "todo",
+    "createdAt": "2026-02-03T08:39:00.923944",
+    "updatedAt": "2026-02-03T08:39:00.923973"
+  },
+  {
+    "id": 2,
+    "description": "pay mortgage",
+    "status": "todo",
+    "createdAt": "2026-02-03T08:39:06.323137",
+    "updatedAt": "2026-02-03T08:39:06.323157"
+  },
+  {
+    "id": 3,
+    "description": "learn programming",
+    "status": "in-progress",
+    "createdAt": "2026-02-03T08:39:11.619580",
+    "updatedAt": "2026-02-03T08:39:17.165702"
+  }
+]
