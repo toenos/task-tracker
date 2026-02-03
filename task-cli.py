@@ -138,7 +138,10 @@ def main():
             print("Task not found")
 
     elif args.command == "list":
-        list_tasks(task_list, args.status)
+        if args.status:
+            list_tasks(task_list, args.status)
+        else:
+            list_tasks(task_list)
 
 if __name__ == "__main__":
     main()
